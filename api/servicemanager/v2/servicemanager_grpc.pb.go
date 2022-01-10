@@ -26,8 +26,7 @@ type SMServiceClient interface {
 	// Services
 	GetServicesStatus(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ServicesStatus, error)
 	InstallService(ctx context.Context, in *InstallServiceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	RunServices(ctx context.Context, in *RunServicesRequest, opts ...grpc.CallOption) (*RunServicesStatus, error)
-	GetInstancesStatus(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*InstancesStatus, error)
+	RunInstances(ctx context.Context, in *RunInstancesRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	ServiceStateAcceptance(ctx context.Context, in *StateAcceptance, opts ...grpc.CallOption) (*empty.Empty, error)
 	SetServiceState(ctx context.Context, in *ServiceState, opts ...grpc.CallOption) (*empty.Empty, error)
 	OverrideEnvVars(ctx context.Context, in *OverrideEnvVarsRequest, opts ...grpc.CallOption) (*OverrideEnvVarStatus, error)
@@ -95,18 +94,9 @@ func (c *sMServiceClient) InstallService(ctx context.Context, in *InstallService
 	return out, nil
 }
 
-func (c *sMServiceClient) RunServices(ctx context.Context, in *RunServicesRequest, opts ...grpc.CallOption) (*RunServicesStatus, error) {
-	out := new(RunServicesStatus)
-	err := c.cc.Invoke(ctx, "/servicemanager.v2.SMService/RunServices", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sMServiceClient) GetInstancesStatus(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*InstancesStatus, error) {
-	out := new(InstancesStatus)
-	err := c.cc.Invoke(ctx, "/servicemanager.v2.SMService/GetInstancesStatus", in, out, opts...)
+func (c *sMServiceClient) RunInstances(ctx context.Context, in *RunInstancesRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/servicemanager.v2.SMService/RunInstances", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -228,8 +218,7 @@ type SMServiceServer interface {
 	// Services
 	GetServicesStatus(context.Context, *empty.Empty) (*ServicesStatus, error)
 	InstallService(context.Context, *InstallServiceRequest) (*empty.Empty, error)
-	RunServices(context.Context, *RunServicesRequest) (*RunServicesStatus, error)
-	GetInstancesStatus(context.Context, *empty.Empty) (*InstancesStatus, error)
+	RunInstances(context.Context, *RunInstancesRequest) (*empty.Empty, error)
 	ServiceStateAcceptance(context.Context, *StateAcceptance) (*empty.Empty, error)
 	SetServiceState(context.Context, *ServiceState) (*empty.Empty, error)
 	OverrideEnvVars(context.Context, *OverrideEnvVarsRequest) (*OverrideEnvVarStatus, error)
@@ -264,11 +253,8 @@ func (UnimplementedSMServiceServer) GetServicesStatus(context.Context, *empty.Em
 func (UnimplementedSMServiceServer) InstallService(context.Context, *InstallServiceRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InstallService not implemented")
 }
-func (UnimplementedSMServiceServer) RunServices(context.Context, *RunServicesRequest) (*RunServicesStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RunServices not implemented")
-}
-func (UnimplementedSMServiceServer) GetInstancesStatus(context.Context, *empty.Empty) (*InstancesStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInstancesStatus not implemented")
+func (UnimplementedSMServiceServer) RunInstances(context.Context, *RunInstancesRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunInstances not implemented")
 }
 func (UnimplementedSMServiceServer) ServiceStateAcceptance(context.Context, *StateAcceptance) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServiceStateAcceptance not implemented")
@@ -400,38 +386,20 @@ func _SMService_InstallService_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SMService_RunServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RunServicesRequest)
+func _SMService_RunInstances_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunInstancesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SMServiceServer).RunServices(ctx, in)
+		return srv.(SMServiceServer).RunInstances(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/servicemanager.v2.SMService/RunServices",
+		FullMethod: "/servicemanager.v2.SMService/RunInstances",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SMServiceServer).RunServices(ctx, req.(*RunServicesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SMService_GetInstancesStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SMServiceServer).GetInstancesStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/servicemanager.v2.SMService/GetInstancesStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SMServiceServer).GetInstancesStatus(ctx, req.(*empty.Empty))
+		return srv.(SMServiceServer).RunInstances(ctx, req.(*RunInstancesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -629,12 +597,8 @@ var SMService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SMService_InstallService_Handler,
 		},
 		{
-			MethodName: "RunServices",
-			Handler:    _SMService_RunServices_Handler,
-		},
-		{
-			MethodName: "GetInstancesStatus",
-			Handler:    _SMService_GetInstancesStatus_Handler,
+			MethodName: "RunInstances",
+			Handler:    _SMService_RunInstances_Handler,
 		},
 		{
 			MethodName: "ServiceStateAcceptance",
