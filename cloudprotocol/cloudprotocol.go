@@ -25,6 +25,8 @@ import (
 	"github.com/aoscloud/aos_common/aostypes"
 )
 
+// TODO: Move to API folder
+
 /***********************************************************************************************************************
  * Consts
  **********************************************************************************************************************/
@@ -88,6 +90,16 @@ const (
 	ForceUpdate     = "force"
 	TriggerUpdate   = "trigger"
 	TimetableUpdate = "timetable"
+)
+
+// Service instance states.
+const (
+	InstanceStateActive       = "active"
+	InstanceStateInactive     = "inactive"
+	InstanceStateFailed       = "failed"
+	InstanceStateReloading    = "reloading"
+	InstanceStateActivating   = "activating"
+	InstanceStateDeactivating = "deactivating"
 )
 
 /***********************************************************************************************************************
@@ -376,13 +388,14 @@ type UnitStatus struct {
 
 // InstanceStatus service instance runtime status.
 type InstanceStatus struct {
-	ServiceID  string `json:"serviceId"`
-	AosVersion uint64 `json:"aosVersion"`
-	SubjectID  string `json:"subjectId"`
-	Instance   uint64 `json:"instance"`
-	State      string `json:"state"`
-	Error      string `json:"error,omitempty"`
-	ExitCode   uint64 `json:"exitCode,omitempty"`
+	ServiceID     string `json:"serviceId"`
+	AosVersion    uint64 `json:"aosVersion"`
+	SubjectID     string `json:"subjectId"`
+	Instance      uint64 `json:"instance"`
+	StateChecksum string `json:"stateChecksum,omitempty"`
+	State         string `json:"state"`
+	Error         string `json:"error,omitempty"`
+	ExitCode      uint64 `json:"exitCode,omitempty"`
 }
 
 // BoardConfigStatus board config status.
@@ -398,7 +411,7 @@ type ServiceStatus struct {
 	AosVersion    uint64 `json:"aosVersion"`
 	Status        string `json:"status"`
 	Error         string `json:"error,omitempty"`
-	StateChecksum string `json:"stateChecksum,omitempty"`
+	StateChecksum string `json:"stateChecksum,omitempty"` // TODO: remove it
 }
 
 // LayerStatus layer status.
