@@ -45,17 +45,17 @@ type Error struct {
  **********************************************************************************************************************/
 
 // New creates new Aos error from string message.
-func New(message string) (err error) {
-	return createAosError(errors.New(message)) // nolint:goerr113 // convert to aosError
+func New(message string) error {
+	return createAosError(errors.New(message)) // nolint:goerr113 // convert to Aos error
 }
 
 // Errorf creates new formatted Aos error.
-func Errorf(format string, args ...interface{}) (aosErr *Error) {
-	return createAosError(fmt.Errorf(format, args...)) // nolint:goerr113 // convert to aosError
+func Errorf(format string, args ...interface{}) error {
+	return createAosError(fmt.Errorf(format, args...)) // nolint:goerr113 // convert to Aos error
 }
 
 // Wrap wraps existing error.
-func Wrap(fromErr error) (err error) {
+func Wrap(fromErr error) error {
 	if fromErr == nil {
 		return nil
 	}
@@ -68,7 +68,7 @@ func Wrap(fromErr error) (err error) {
 }
 
 // Error returns Aos error message.
-func (aosErr *Error) Error() (str string) {
+func (aosErr *Error) Error() string {
 	f := runtime.FuncForPC(aosErr.pc)
 	if f == nil {
 		return "[unknown:???]"
@@ -78,7 +78,7 @@ func (aosErr *Error) Error() (str string) {
 }
 
 // Unwrap unwraps error.
-func (aosErr *Error) Unwrap() (err error) {
+func (aosErr *Error) Unwrap() error {
 	return aosErr.err
 }
 
@@ -86,10 +86,8 @@ func (aosErr *Error) Unwrap() (err error) {
  * Private
  **********************************************************************************************************************/
 
-func createAosError(fromErr error) (aosErr *Error) {
-	aosErr = &Error{
-		err: fromErr,
-	}
+func createAosError(fromErr error) *Error {
+	aosErr := &Error{err: fromErr}
 
 	aosErr.pc, _, aosErr.line, _ = runtime.Caller(callerLevel)
 
