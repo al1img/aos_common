@@ -183,10 +183,6 @@ func TestAllocate(t *testing.T) {
 
 	// Finalize spaces
 
-	if err = space6.Accept(); err != nil {
-		t.Errorf("Can't accept space: %v", err)
-	}
-
 	if err = space3.Accept(); err != nil {
 		t.Errorf("Can't accept space: %v", err)
 	}

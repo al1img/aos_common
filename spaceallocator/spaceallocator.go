@@ -179,18 +179,18 @@ func (allocator *Allocator) AllocateSpace(size uint64) (*Space, error) {
 }
 
 // Accept accepts previously allocated space.
-func (space *Space) Accept() error {
+func (space *Space) Accept() (err error) {
 	log.WithFields(log.Fields{"path": space.path, "size": space.size}).Debug("Space accepted")
 
-	if err := space.allocator.allocateDone(); err != nil {
-		return err
+	if allocatorErr := space.allocator.allocateDone(); allocatorErr != nil && err == nil {
+		err = allocatorErr
 	}
 
-	if err := space.allocator.part.allocateDone(); err != nil {
-		return err
+	if partErr := space.allocator.part.allocateDone(); partErr != nil && err == nil {
+		err = partErr
 	}
 
-	return nil
+	return err
 }
 
 // PartiallyAccept partially accepts previously allocated space.
@@ -222,21 +222,21 @@ func (space *Space) PartiallyAccept(size uint64) (err error) {
 }
 
 // Release releases previously allocated space.
-func (space *Space) Release() error {
+func (space *Space) Release() (err error) {
 	log.WithFields(log.Fields{"path": space.path, "size": space.size}).Debug("Space released")
 
 	space.allocator.freeSpace(space.size)
 	space.allocator.part.freeSpace(space.size)
 
-	if err := space.allocator.allocateDone(); err != nil {
-		return err
+	if allocatorErr := space.allocator.allocateDone(); allocatorErr != nil && err == nil {
+		err = allocatorErr
 	}
 
-	if err := space.allocator.part.allocateDone(); err != nil {
-		return err
+	if partErr := space.allocator.part.allocateDone(); partErr != nil && err == nil {
+		err = partErr
 	}
 
-	return nil
+	return err
 }
 
 // FreeSpace frees space in storage.
