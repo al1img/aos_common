@@ -193,6 +193,34 @@ func (space *Space) Accept() error {
 	return nil
 }
 
+// PartiallyAccept partially accepts previously allocated space.
+func (space *Space) PartiallyAccept(size uint64) (err error) {
+	log.WithFields(log.Fields{
+		"path": space.path, "size": space.size, "acceptedSize": size,
+	}).Debug("Space partially accepted")
+
+	switch {
+	case size > space.size && err == nil:
+		err = aoserrors.New("accept size grater than allocated size")
+
+	case size < space.size:
+		freeSize := space.size - size
+
+		space.allocator.freeSpace(freeSize)
+		space.allocator.part.freeSpace(freeSize)
+	}
+
+	if allocatorErr := space.allocator.allocateDone(); allocatorErr != nil && err == nil {
+		err = allocatorErr
+	}
+
+	if partErr := space.allocator.part.allocateDone(); partErr != nil && err == nil {
+		err = partErr
+	}
+
+	return err
+}
+
 // Release releases previously allocated space.
 func (space *Space) Release() error {
 	log.WithFields(log.Fields{"path": space.path, "size": space.size}).Debug("Space released")

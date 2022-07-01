@@ -151,10 +151,40 @@ func TestAllocate(t *testing.T) {
 		t.Fatalf("Can't allocate space: %v", err)
 	}
 
-	// Finalize spaces
-
 	if err = space4.Release(); err != nil {
 		t.Errorf("Can't release space: %v", err)
+	}
+
+	// Check partially accept space
+
+	space5, err := allocator.AllocateSpace(256 * kilobyte)
+	if err != nil {
+		t.Fatalf("Can't allocate space: %v", err)
+	}
+
+	if _, err := allocator.AllocateSpace(256 * kilobyte); !errors.Is(err, spaceallocator.ErrNoSpace) {
+		t.Errorf("Wrong allocator error: %v", err)
+	}
+
+	if err = space5.PartiallyAccept(128 * kilobyte); err != nil {
+		t.Errorf("Can't accept space: %v", err)
+	}
+
+	space6, err := allocator.AllocateSpace(256 * kilobyte)
+	if err != nil {
+		t.Fatalf("Can't allocate space: %v", err)
+	}
+
+	// Check partially accept more than allocated
+
+	if err = space6.PartiallyAccept(368 * kilobyte); err == nil {
+		t.Error("Error should be returned")
+	}
+
+	// Finalize spaces
+
+	if err = space6.Accept(); err != nil {
+		t.Errorf("Can't accept space: %v", err)
 	}
 
 	if err = space3.Accept(); err != nil {
